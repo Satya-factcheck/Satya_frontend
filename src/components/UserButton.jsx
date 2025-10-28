@@ -1,4 +1,5 @@
 import { UserButton as ClerkUserButton } from '@clerk/clerk-react'
+import { Settings } from 'lucide-react'
 
 /**
  * UserButton - Displays the user profile button from Clerk
@@ -13,7 +14,15 @@ const UserButton = () => {
           userButtonPopoverCard: 'shadow-lg',
         },
       }}
-    />
+    >
+      <ClerkUserButton.MenuItems>
+        <ClerkUserButton.Link
+          label="Manage Interests"
+          labelIcon={<Settings size={16} />}
+          href="/settings"
+        />
+      </ClerkUserButton.MenuItems>
+    </ClerkUserButton>
   )
 }
 
