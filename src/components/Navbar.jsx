@@ -50,13 +50,23 @@ const Navbar = ({ onMenuClick }) => {
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              aria-label="Toggle theme"
-            >
-              {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-            </button>
+            {/* Theme Toggle Switch */}
+            <label className="relative inline-flex cursor-pointer items-center" aria-label="Toggle theme">
+              <input 
+                type="checkbox" 
+                className="peer sr-only" 
+                checked={theme === 'dark'}
+                onChange={toggleTheme}
+              />
+              <div className="peer h-7 w-12 rounded-full bg-slate-300 dark:bg-slate-600 ring-offset-1 transition-colors duration-200 peer-checked:bg-indigo-600 peer-focus:ring-2 peer-focus:ring-indigo-500"></div>
+              <span className="absolute top-1 left-1 h-5 w-5 rounded-full bg-white transition-transform duration-200 ease-in-out peer-checked:translate-x-5 flex items-center justify-center">
+                {theme === 'light' ? (
+                  <Sun className="w-3 h-3 text-yellow-500" />
+                ) : (
+                  <Moon className="w-3 h-3 text-indigo-600" />
+                )}
+              </span>
+            </label>
 
             {/* Auth Controls */}
             <SignedOut>
