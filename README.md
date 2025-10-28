@@ -193,9 +193,7 @@ Toggle between light and dark themes using the moon/sun icon in the navbar.
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📄 License
 
-This project is licensed under the MIT License.
 
 ## 📧 Contact
 
