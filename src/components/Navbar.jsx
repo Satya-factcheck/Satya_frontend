@@ -1,21 +1,107 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, Menu, Moon, Sun, Shield, LogIn } from 'lucide-react'
+import { Search, Menu, Moon, Sun, Shield, LogIn, TrendingUp, Clock, Heart } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react'
 import UserButton from './UserButton'
+import { cn } from '../utils/cn'
+import { useUserPreferences } from '../context/UserContext'
 
 const Navbar = ({ onMenuClick }) => {
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
+  const { interests } = useUserPreferences()
   const [searchQuery, setSearchQuery] = useState('')
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [suggestions, setSuggestions] = useState([])
+  const searchRef = useRef(null)
+
+  // Interest names mapping
+  const interestNames = {
+    politics: 'Politics',
+    technology: 'Technology',
+    business: 'Business',
+    sports: 'Sports',
+    health: 'Health',
+    science: 'Science',
+    entertainment: 'Entertainment',
+    environment: 'Environment',
+    education: 'Education',
+    travel: 'Travel',
+    food: 'Food & Culture',
+    finance: 'Finance'
+  }
+
+  // Popular search terms and trending topics
+  const popularSearches = [
+    { text: 'Digital India', type: 'trending', icon: TrendingUp },
+    { text: 'Vaccine Facts', type: 'trending', icon: TrendingUp },
+    { text: 'Election News', type: 'trending', icon: TrendingUp },
+    { text: 'Climate Change', type: 'trending', icon: TrendingUp },
+    { text: 'Economic Growth', type: 'trending', icon: TrendingUp },
+    { text: 'Space Mission', type: 'trending', icon: TrendingUp },
+    { text: 'Fake News', type: 'recent', icon: Clock },
+    { text: 'Deepfake Detection', type: 'recent', icon: Clock },
+    { text: 'Government Policies', type: 'recent', icon: Clock },
+    { text: 'Technology', type: 'recent', icon: Clock },
+  ]
+
+  // Get user interests as search suggestions
+  const userInterestSuggestions = interests.map(interestId => ({
+    text: interestNames[interestId] || interestId,
+    type: 'interest',
+    icon: Heart
+  }))
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Filter suggestions based on query
+  useEffect(() => {
+    // Combine all suggestions: user interests first, then trending, then recent
+    const allSuggestions = [
+      ...userInterestSuggestions,
+      ...popularSearches
+    ]
+
+    if (searchQuery.trim()) {
+      const filtered = allSuggestions.filter(item =>
+        item.text.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      setSuggestions(filtered.slice(0, 6))
+    } else {
+      // Show user interests first, then trending
+      const defaultSuggestions = [
+        ...userInterestSuggestions.slice(0, 3),
+        ...popularSearches.filter(item => item.type === 'trending').slice(0, 3)
+      ]
+      setSuggestions(defaultSuggestions)
+    }
+  }, [searchQuery, interests])
 
   const handleSearch = (e) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      // Navigate or trigger search
-      console.log('Searching:', searchQuery)
+      // Navigate to home page with search query
+      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchQuery('')
+      setShowSuggestions(false)
     }
+  }
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion)
+    navigate(`/?search=${encodeURIComponent(suggestion)}`)
+    setShowSuggestions(false)
   }
 
   return (
@@ -35,16 +121,62 @@ const Navbar = ({ onMenuClick }) => {
 
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-lg mx-8">
-            <div className="relative w-full">
+            <div className="relative w-full" ref={searchRef}>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setShowSuggestions(true)}
                 placeholder="Search for news or claims..."
                 className="w-full px-4 py-2 pl-10 rounded-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
                 aria-label="Search"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              
+              {/* Autocomplete Suggestions Dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-full mt-2 w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
+                  <div className="p-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 px-3 py-2 font-medium">
+                      {searchQuery ? 'Suggestions' : 'Quick Search'}
+                    </p>
+                    {suggestions.map((suggestion, index) => {
+                      const Icon = suggestion.icon
+                      return (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => handleSuggestionClick(suggestion.text)}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left",
+                            "hover:bg-gray-100 dark:hover:bg-gray-700"
+                          )}
+                        >
+                          <Icon className={cn(
+                            "w-4 h-4",
+                            suggestion.type === 'trending' ? "text-blue-500" : 
+                            suggestion.type === 'interest' ? "text-pink-500" : 
+                            "text-gray-400"
+                          )} />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {suggestion.text}
+                          </span>
+                          {suggestion.type === 'trending' && (
+                            <span className="ml-auto text-xs text-blue-500 font-medium">
+                              Trending
+                            </span>
+                          )}
+                          {suggestion.type === 'interest' && (
+                            <span className="ml-auto text-xs text-pink-500 font-medium">
+                              Your Interest
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </form>
 

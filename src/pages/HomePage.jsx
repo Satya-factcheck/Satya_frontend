@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { TrendingUp, CheckCircle, AlertTriangle, XCircle, RefreshCw } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { TrendingUp, CheckCircle, AlertTriangle, XCircle, RefreshCw, X, Search } from 'lucide-react'
 import NewsCard from '../components/NewsCard'
 import LoadingSkeleton from '../components/LoadingSkeleton'
 import OnboardingRedirect from '../components/OnboardingRedirect'
@@ -8,11 +8,15 @@ import { useUserPreferences } from '../context/UserContext'
 import { getPersonalizedFeed, getTrendingNews } from '../services/userService'
 import { useUser } from '@clerk/clerk-react'
 import { cn } from '../utils/cn'
+import { useSearchParams } from 'react-router-dom'
 
 const HomePage = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const searchQuery = searchParams.get('search') || ''
   const [activeTab, setActiveTab] = useState('trending')
   const [isLoading, setIsLoading] = useState(false)
   const [articles, setArticles] = useState([])
+  const [filteredArticles, setFilteredArticles] = useState([])
   const [error, setError] = useState(null)
   const [page, setPage] = useState(1)
   const { isSignedIn } = useUser()
@@ -29,6 +33,25 @@ const HomePage = () => {
   useEffect(() => {
     fetchNews()
   }, [activeTab, interests, isSignedIn, hasCompletedOnboarding])
+
+  // Filter articles based on search query
+  useEffect(() => {
+    if (searchQuery) {
+      const filtered = articles.filter(article => 
+        article.headline.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.source.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.author?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      setFilteredArticles(filtered)
+    } else {
+      setFilteredArticles(articles)
+    }
+  }, [searchQuery, articles])
+
+  const clearSearch = () => {
+    setSearchParams({})
+  }
 
   const fetchNews = async () => {
     setIsLoading(true)
@@ -169,12 +192,40 @@ const HomePage = () => {
         >
         <h1 className="text-4xl font-bold mb-2">News Verification Feed</h1>
         <p className="text-gray-600 dark:text-gray-400">
-          {isSignedIn && hasCompletedOnboarding && interests.length > 0
-            ? `Personalized news based on your ${interests.length} interests`
-            : 'AI-powered credibility analysis for Indian news and social media claims'
+          {searchQuery 
+            ? `Search results for "${searchQuery}"`
+            : isSignedIn && hasCompletedOnboarding && interests.length > 0
+              ? `Personalized news based on your ${interests.length} interests`
+              : 'AI-powered credibility analysis for Indian news and social media claims'
           }
         </p>
       </motion.div>
+
+      {/* Search Results Banner */}
+      <AnimatePresence>
+        {searchQuery && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2">
+              <Search className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <span className="text-blue-900 dark:text-blue-200">
+                Found {filteredArticles.length} result{filteredArticles.length !== 1 ? 's' : ''} for "{searchQuery}"
+              </span>
+            </div>
+            <button
+              onClick={clearSearch}
+              className="px-3 py-1 bg-blue-100 dark:bg-blue-800 hover:bg-blue-200 dark:hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2 text-blue-900 dark:text-blue-200"
+            >
+              <X className="w-4 h-4" />
+              Clear
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Error Banner */}
       {error && (
@@ -237,12 +288,35 @@ const HomePage = () => {
       {/* News Grid */}
       {isLoading ? (
         <LoadingSkeleton />
-      ) : (
+      ) : filteredArticles.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {articles.map((article, index) => (
+          {filteredArticles.map((article, index) => (
             <NewsCard key={article.id} article={article} index={index} />
           ))}
         </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center py-12"
+        >
+          <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+          <h3 className="text-xl font-semibold mb-2">No results found</h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            {searchQuery 
+              ? `No articles match "${searchQuery}". Try different keywords.`
+              : 'No articles available at the moment.'
+            }
+          </p>
+          {searchQuery && (
+            <button
+              onClick={clearSearch}
+              className="px-6 py-2 bg-primary text-white rounded-full hover:bg-blue-700 transition-colors"
+            >
+              Clear Search
+            </button>
+          )}
+        </motion.div>
       )}
 
       {/* Load More */}
