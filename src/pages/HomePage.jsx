@@ -19,6 +19,9 @@ const HomePage = () => {
   const [filteredArticles, setFilteredArticles] = useState([])
   const [error, setError] = useState(null)
   const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [totalArticles, setTotalArticles] = useState(0)
   const { isSignedIn } = useUser()
   const { interests, hasCompletedOnboarding } = useUserPreferences()
 
@@ -31,7 +34,9 @@ const HomePage = () => {
 
   // Fetch news based on active tab and user interests
   useEffect(() => {
-    fetchNews()
+    setPage(1) // Reset to page 1 when tab or interests change
+    setArticles([]) // Clear existing articles
+    fetchNews(1, false) // Fetch first page
   }, [activeTab, interests, isSignedIn, hasCompletedOnboarding])
 
   // Filter articles based on search query
@@ -53,8 +58,15 @@ const HomePage = () => {
     setSearchParams({})
   }
 
-  const fetchNews = async () => {
-    setIsLoading(true)
+  const fetchNews = async (pageNum = 1, append = false) => {
+    // Don't fetch if already loading or no more data
+    if (append && (isLoadingMore || !hasMore)) return
+    
+    if (append) {
+      setIsLoadingMore(true)
+    } else {
+      setIsLoading(true)
+    }
     setError(null)
 
     try {
@@ -63,40 +75,63 @@ const HomePage = () => {
       // Use personalized feed if user is signed in and has interests
       if (isSignedIn && hasCompletedOnboarding && interests.length > 0) {
         response = await getPersonalizedFeed({
-          page,
+          page: pageNum,
           limit: 20,
           filter: activeTab,
         })
       } else {
         // Fall back to trending news for non-authenticated or new users
-        response = await getTrendingNews({ page, limit: 20 })
+        response = await getTrendingNews({ page: pageNum, limit: 20 })
       }
 
       // Check if response has articles
       if (response && response.articles) {
-        setArticles(response.articles)
+        if (append) {
+          setArticles(prev => [...prev, ...response.articles])
+        } else {
+          setArticles(response.articles)
+        }
+        
+        // Update pagination metadata
+        setTotalArticles(response.total || response.articles.length)
+        setHasMore(response.hasMore !== undefined ? response.hasMore : response.articles.length === 20)
       } else {
         // Fallback to mock data if API fails or returns nothing
-        setArticles(mockArticles)
+        if (!append) {
+          setArticles(mockArticles)
+          setTotalArticles(mockArticles.length)
+          setHasMore(false)
+        }
       }
     } catch (error) {
       console.error('Error fetching news:', error)
       setError(error.message)
       // Fallback to mock data on error
-      setArticles(mockArticles)
+      if (!append) {
+        setArticles(mockArticles)
+        setTotalArticles(mockArticles.length)
+        setHasMore(false)
+      }
     } finally {
-      setIsLoading(false)
+      if (append) {
+        setIsLoadingMore(false)
+      } else {
+        setIsLoading(false)
+      }
     }
   }
 
   const handleLoadMore = () => {
-    setPage(prev => prev + 1)
-    // TODO: Implement pagination
+    const nextPage = page + 1
+    setPage(nextPage)
+    fetchNews(nextPage, true) // Append to existing articles
   }
 
   const handleRefresh = () => {
     setPage(1)
-    fetchNews()
+    setArticles([])
+    setHasMore(true)
+    fetchNews(1, false)
   }
 
   // Mock data
@@ -199,6 +234,11 @@ const HomePage = () => {
               : 'AI-powered credibility analysis for Indian news and social media claims'
           }
         </p>
+        {!searchQuery && totalArticles > 0 && (
+          <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
+            Showing {articles.length} of {totalArticles} articles
+          </p>
+        )}
       </motion.div>
 
       {/* Search Results Banner */}
@@ -320,11 +360,33 @@ const HomePage = () => {
       )}
 
       {/* Load More */}
-      <div className="mt-12 text-center">
-        <button className="px-8 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-full font-medium transition-colors">
-          Load More Articles
-        </button>
-      </div>
+      {!searchQuery && filteredArticles.length > 0 && hasMore && (
+        <div className="mt-12 text-center">
+          <button 
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="px-8 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
+          >
+            {isLoadingMore ? (
+              <>
+                <RefreshCw className="w-5 h-5 animate-spin" />
+                Loading more...
+              </>
+            ) : (
+              <>Load More Articles</>
+            )}
+          </button>
+        </div>
+      )}
+      
+      {/* End of Results */}
+      {!searchQuery && filteredArticles.length > 0 && !hasMore && (
+        <div className="mt-12 text-center">
+          <p className="text-gray-500 dark:text-gray-400">
+            You've reached the end of the feed
+          </p>
+        </div>
+      )}
     </div>
     </OnboardingRedirect>
   )

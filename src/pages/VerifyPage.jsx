@@ -36,63 +36,73 @@ const VerifyPage = () => {
     }, 2000)
   }
 
+  const handleReset = () => {
+    setResult(null)
+    setInput('')
+  }
+
   return (
     <div className="max-w-4xl mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-12"
-      >
-        <h1 className="text-4xl font-bold mb-4">Verify Claims Instantly</h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">
-          Paste a news link, WhatsApp message, or any claim to check its credibility
-        </p>
-      </motion.div>
-
-      {/* Input Form */}
-      <motion.form
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.1 }}
-        onSubmit={handleVerify}
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8"
-      >
-        <div className="mb-4">
-          <label htmlFor="claim-input" className="block text-sm font-medium mb-2">
-            Enter claim or paste URL
-          </label>
-          <div className="relative">
-            <textarea
-              id="claim-input"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Example: 'Government announces free laptops for all students' or paste a news article URL..."
-              rows="6"
-              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-              disabled={isVerifying}
-            />
-            <LinkIcon className="absolute top-3 right-3 w-5 h-5 text-gray-400" />
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={isVerifying || !input.trim()}
-          className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-primary hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-xl font-semibold transition-colors disabled:cursor-not-allowed"
+      {/* Header - Only show when no result */}
+      {!result && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-12"
         >
-          {isVerifying ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Verifying...</span>
-            </>
-          ) : (
-            <>
-              <Send className="w-5 h-5" />
-              <span>Verify Now</span>
-            </>
-          )}
-        </button>
-      </motion.form>
+          <h1 className="text-4xl font-bold mb-4">Verify Claims Instantly</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            Paste a news link, WhatsApp message, or any claim to check its credibility
+          </p>
+        </motion.div>
+      )}
+
+      {/* Input Form - Only show when no result */}
+      {!result && (
+        <motion.form
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          onSubmit={handleVerify}
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8"
+        >
+          <div className="mb-4">
+            <label htmlFor="claim-input" className="block text-sm font-medium mb-2">
+              Enter claim or paste URL
+            </label>
+            <div className="relative">
+              <textarea
+                id="claim-input"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Example: 'Government announces free laptops for all students' or paste a news article URL..."
+                rows="6"
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                disabled={isVerifying}
+              />
+              <LinkIcon className="absolute top-3 right-3 w-5 h-5 text-gray-400" />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isVerifying || !input.trim()}
+            className="w-full flex items-center justify-center space-x-2 px-6 py-4 bg-primary hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-xl font-semibold transition-colors disabled:cursor-not-allowed"
+          >
+            {isVerifying ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Verifying...</span>
+              </>
+            ) : (
+              <>
+                <Send className="w-5 h-5" />
+                <span>Verify Now</span>
+              </>
+            )}
+          </button>
+        </motion.form>
+      )}
 
       {/* Results */}
       {result && (
@@ -133,39 +143,15 @@ const VerifyPage = () => {
             </div>
           </div>
 
-          {/* Sources */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-            <h3 className="text-xl font-bold mb-4">Fact-Check References</h3>
-            <div className="space-y-3">
-              {result.sources.map((source, idx) => (
-                <a
-                  key={idx}
-                  href={source.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <span className="font-medium">{source.name}</span>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-500">Credibility: {source.credibility}%</span>
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Related Articles */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
-            <h3 className="text-xl font-bold mb-4">Related Analysis</h3>
-            <ul className="space-y-2">
-              {result.relatedArticles.map((article, idx) => (
-                <li key={idx} className="flex items-center space-x-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg transition-colors cursor-pointer">
-                  <XCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                  <span>{article}</span>
-                </li>
-              ))}
-            </ul>
+          {/* Verify Another Button */}
+          <div className="text-center pt-4">
+            <button
+              onClick={handleReset}
+              className="inline-flex items-center space-x-2 px-8 py-3 bg-primary hover:bg-blue-700 text-white rounded-xl font-semibold transition-colors"
+            >
+              <Send className="w-5 h-5" />
+              <span>Verify Another Claim</span>
+            </button>
           </div>
         </motion.div>
       )}
