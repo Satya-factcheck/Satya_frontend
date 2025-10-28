@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Shield, Twitter, Facebook, Instagram, Mail, Check, Heart } from 'lucide-react'
+import { Shield, Twitter, Facebook, Instagram, Mail, Check } from 'lucide-react'
 
 const Footer = () => {
   return (
@@ -54,28 +54,42 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">Connect</h3>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-primary" aria-label="Twitter">
+              <a 
+                href="https://twitter.com" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors" 
+                aria-label="Twitter"
+              >
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-primary" aria-label="Facebook">
+              <a 
+                href="https://facebook.com" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors" 
+                aria-label="Facebook"
+              >
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-primary" aria-label="Instagram">
+              <a 
+                href="https://instagram.com" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors" 
+                aria-label="Instagram"
+              >
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-primary" aria-label="Email">
+              <a 
+                href="mailto:contact@satya.in" 
+                className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors" 
+                aria-label="Email"
+              >
                 <Mail className="w-5 h-5" />
               </a>
             </div>
           </div>
-        </div>
-
-        <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-sm text-gray-600 dark:text-gray-400">
-          <span className="inline-flex items-center gap-1">
-            © {new Date().getFullYear()} Satya. All rights reserved. Made with 
-            <Heart className="w-4 h-4 text-red-500 fill-red-500 inline" />
-            for India.
-          </span>
         </div>
       </div>
     </footer>
