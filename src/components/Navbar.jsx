@@ -3,7 +3,6 @@ import { Search, Menu, Moon, Sun, Shield, LogIn } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useState } from 'react'
 import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react'
-import LanguageSelector from './LanguageSelector'
 import UserButton from './UserButton'
 
 const Navbar = ({ onMenuClick }) => {
@@ -51,7 +50,6 @@ const Navbar = ({ onMenuClick }) => {
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
-            <LanguageSelector />
             <button
               onClick={toggleTheme}
               className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
