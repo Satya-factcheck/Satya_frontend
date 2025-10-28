@@ -42,20 +42,19 @@ const SelectInterestsPage = () => {
       }, 1500)
     } catch (error) {
       console.error('Error saving interests:', error)
-      setError(error.message || 'Failed to save interests. Please try again.')
-      setIsSubmitting(false)
       
-      // Still allow user to continue even if API fails (localStorage backup)
-      // Show error but allow proceeding after 3 seconds
-      setTimeout(() => {
-        if (error.status === 0 || error.status >= 500) {
-          // Network or server error - still proceed
-          setInterests(selectedInterests)
-          setHasCompletedOnboarding(true)
-          setShowSuccess(true)
-          setTimeout(() => navigate('/'), 1500)
-        }
-      }, 3000)
+      // Check if it's a network/server error - proceed anyway with local storage
+      if (error.status === 0 || error.status >= 500 || error.message?.includes('Network')) {
+        // Network or server error - save locally and proceed immediately
+        setInterests(selectedInterests)
+        setHasCompletedOnboarding(true)
+        setShowSuccess(true)
+        setTimeout(() => navigate('/'), 1500)
+      } else {
+        // Other errors - show error message
+        setError(error.message || 'Failed to save interests. Please try again.')
+        setIsSubmitting(false)
+      }
     }
   }
 
