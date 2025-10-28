@@ -17,7 +17,7 @@ const AboutPage = () => {
     {
       icon: Zap,
       title: 'Instant Verification',
-      description: 'Paste WhatsApp forwards or social media posts — get a clear verdict (✅ True, ⚠️ Misleading, ❌ Fake) with explanations in seconds.'
+      description: 'Paste WhatsApp forwards or social media posts — get a clear verdict (Verified, Partially True, Misleading, or False) with detailed explanations in seconds.'
     },
     {
       icon: Globe,
@@ -56,7 +56,7 @@ const AboutPage = () => {
     },
     {
       question: 'How does SATYA verify claims?',
-      answer: 'We analyze content against fact-checking APIs, trusted databases, and our own verification logs. Each claim receives a clear verdict (✅ True, ⚠️ Misleading, ❌ Fake) with explanations and evidence.'
+      answer: 'We analyze content against fact-checking APIs, trusted databases, and our own verification logs. Each claim receives a clear verdict (Verified, Partially True, Misleading, or False) with detailed explanations and evidence.'
     },
     {
       question: 'What makes SATYA different?',
