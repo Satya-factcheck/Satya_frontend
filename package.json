@@ -1,0 +1,19 @@
+{
+  "name": "satya_frontend",
+  "version": "1.0.0",
+  "description": "Web app to check fake messages",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imajij/Satya_frontend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/imajij/Satya_frontend/issues"
+  },
+  "homepage": "https://github.com/imajij/Satya_frontend#readme"
+}
