@@ -21,6 +21,7 @@ A modern, responsive React frontend for AI-powered news verification and credibi
 - **React Router** - Client-side routing
 - **TanStack Query** - Data fetching and caching
 - **Lucide React** - Beautiful icon library
+- **Clerk** - Authentication & user management
 
 ## 📦 Installation
 
@@ -31,6 +32,9 @@ cd Satya_frontend
 # Install dependencies
 npm install
 
+# Set up environment variables (see Authentication Setup below)
+cp .env.example .env
+
 # Start development server
 npm run dev
 
@@ -39,6 +43,56 @@ npm run build
 
 # Preview production build
 npm run preview
+```
+
+## 🔐 Authentication Setup
+
+This project uses **Clerk** for authentication. Follow these steps to set up:
+
+### 1. Create a Clerk Account
+1. Go to [https://dashboard.clerk.com/](https://dashboard.clerk.com/)
+2. Sign up for a free account
+3. Create a new application
+4. Choose your preferred authentication methods (Email, Google, GitHub, etc.)
+
+### 2. Get Your API Keys
+1. In the Clerk Dashboard, go to **API Keys**
+2. Copy your **Publishable Key** (starts with `pk_test_` or `pk_live_`)
+
+### 3. Configure Environment Variables
+Create a `.env` file in the root directory:
+
+```bash
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_your_actual_key_here
+```
+
+Replace `your_actual_key_here` with the key you copied from Clerk.
+
+### 4. Configure Sign-In Redirect URLs
+In the Clerk Dashboard under **Sign-in & Sign-up**:
+- Add `http://localhost:5173` to the Redirect URLs (for development)
+- Add your production URL for deployed environments
+
+### 5. Authentication Features
+- **Protected Routes**: The `/verify` page requires authentication
+- **User Button**: Click your avatar in the navbar to access profile, settings, and sign out
+- **Sign In Button**: Located in the navbar for unauthenticated users
+- **Automatic Redirects**: Unauthenticated users are redirected to sign-in when accessing protected pages
+
+### Protected Routes
+To protect a new route, wrap it with the `ProtectedRoute` component:
+
+```jsx
+import ProtectedRoute from './components/ProtectedRoute'
+
+<Route 
+  path="/your-route" 
+  element={
+    <ProtectedRoute>
+      <YourComponent />
+    </ProtectedRoute>
+  } 
+/>
 ```
 
 ## 🏗️ Project Structure
@@ -53,6 +107,8 @@ Satya_frontend/
 │   │   ├── NewsCard.jsx
 │   │   ├── CredibilityBadge.jsx
 │   │   ├── BiasMeter.jsx
+│   │   ├── UserButton.jsx
+│   │   ├── ProtectedRoute.jsx
 │   │   └── ...
 │   ├── pages/            # Route pages
 │   │   ├── HomePage.jsx
@@ -124,8 +180,8 @@ Toggle between light and dark themes using the moon/sun icon in the navbar.
 
 ## 🚧 Future Enhancements
 
+- [x] User authentication (Clerk integration complete)
 - [ ] Backend API integration
-- [ ] User authentication
 - [ ] Save/bookmark articles
 - [ ] Advanced search filters
 - [ ] Regional news customization

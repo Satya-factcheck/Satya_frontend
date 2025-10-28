@@ -1,8 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, Menu, Moon, Sun, Shield } from 'lucide-react'
+import { Search, Menu, Moon, Sun, Shield, LogIn } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useState } from 'react'
+import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react'
 import LanguageSelector from './LanguageSelector'
+import UserButton from './UserButton'
 
 const Navbar = ({ onMenuClick }) => {
   const { theme, toggleTheme } = useTheme()
@@ -57,6 +59,23 @@ const Navbar = ({ onMenuClick }) => {
             >
               {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
+
+            {/* Auth Controls */}
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="hidden sm:flex items-center space-x-2 px-4 py-2 text-primary border border-primary rounded-full hover:bg-primary hover:text-white transition-colors font-medium">
+                  <LogIn className="w-5 h-5" />
+                  <span>Sign In</span>
+                </button>
+              </SignInButton>
+            </SignedOut>
+
+            <SignedIn>
+              <div className="flex items-center space-x-2">
+                <UserButton />
+              </div>
+            </SignedIn>
+
             <Link
               to="/verify"
               className="hidden sm:block px-4 py-2 bg-primary text-white rounded-full hover:bg-blue-700 transition-colors font-medium"

@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage'
 import VerifyPage from './pages/VerifyPage'
 import ArticleDetailsPage from './pages/ArticleDetailsPage'
 import AboutPage from './pages/AboutPage'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   return (
@@ -13,7 +14,14 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/verify" element={<VerifyPage />} />
+            <Route 
+              path="/verify" 
+              element={
+                <ProtectedRoute>
+                  <VerifyPage />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/article/:id" element={<ArticleDetailsPage />} />
             <Route path="/about" element={<AboutPage />} />
           </Routes>
