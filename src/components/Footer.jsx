@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { Shield, Twitter, Facebook, Instagram, Mail, Check } from 'lucide-react'
+import { Twitter, Facebook, Instagram, Mail, Check } from 'lucide-react'
+import logo from '../assets/logo.svg'
 
 const Footer = () => {
   return (
@@ -8,10 +9,14 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <Shield className="w-6 h-6 text-primary" />
-              <span className="text-xl font-bold">Satya</span>
-            </div>
+                      <div className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2">
+              <img src={logo} alt="Satya Logo" className="w-10 h-10" />
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                SATYA
+              </span>
+            </Link>
+          </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Fighting misinformation with AI-powered fact-checking and credibility analysis.
             </p>

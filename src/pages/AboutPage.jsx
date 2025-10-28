@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Shield, Target, Brain, CheckCircle, TrendingUp, AlertTriangle, Zap, Globe } from 'lucide-react'
-import { useState } from 'react'
+import logo from '../assets/logo.svg'
 
 const AboutPage = () => {
   const features = [
@@ -76,21 +76,18 @@ const AboutPage = () => {
     <div className="max-w-7xl mx-auto">
       {/* Hero Section */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
         className="text-center mb-16"
       >
         <div className="flex justify-center mb-6">
-          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
-            <Shield className="w-12 h-12 text-primary" />
-          </div>
+          <img src={logo} alt="Satya Logo" className="w-20 h-20" />
         </div>
-        <h1 className="text-5xl font-bold mb-4">About SATYA</h1>
-        <p className="text-2xl font-semibold text-primary mb-4">
-          Making Truth Go Viral
-        </p>
+        <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+          About SATYA
+        </h1>
         <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-          An instant truth detector for every Indian — cutting through noise to show only facts.
+          Empowering citizens with AI-powered fact-checking to combat misinformation and promote truth in the digital age.
         </p>
       </motion.div>
 

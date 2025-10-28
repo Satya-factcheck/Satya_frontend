@@ -1,11 +1,12 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { Search, Menu, Moon, Sun, Shield, LogIn, TrendingUp, Clock, Heart } from 'lucide-react'
+import { Search, Menu, Moon, Sun, LogIn, TrendingUp, Clock, Heart } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useState, useEffect, useRef } from 'react'
 import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react'
 import UserButton from './UserButton'
 import { cn } from '../utils/cn'
 import { useUserPreferences } from '../context/UserContext'
+import logo from '../assets/logo.svg'
 
 const Navbar = ({ onMenuClick }) => {
   const { theme, toggleTheme } = useTheme()
@@ -113,9 +114,11 @@ const Navbar = ({ onMenuClick }) => {
             <button onClick={onMenuClick} className="lg:hidden" aria-label="Menu">
               <Menu className="w-6 h-6" />
             </button>
-            <Link to="/" className="flex items-center space-x-2">
-              <Shield className="w-8 h-8 text-primary" />
-              <span className="text-2xl font-bold text-primary">Satya</span>
+                        <Link to="/" className="flex items-center space-x-2">
+              <img src={logo} alt="Satya Logo" className="w-12 h-12" />
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                SATYA
+              </span>
             </Link>
           </div>
 
