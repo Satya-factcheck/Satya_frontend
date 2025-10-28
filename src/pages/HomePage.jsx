@@ -197,21 +197,41 @@ const HomePage = () => {
         </motion.div>
       )}      {/* Tabs */}
       <div className="flex space-x-2 mb-8 overflow-x-auto pb-2">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              'flex items-center space-x-2 px-6 py-3 rounded-full font-medium transition-all whitespace-nowrap',
-              activeTab === tab.id
-                ? 'bg-primary text-white shadow-lg scale-105'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            )}
-          >
-            <tab.icon className="w-5 h-5" />
-            <span>{tab.label}</span>
-          </button>
-        ))}
+        {tabs.map(tab => {
+          const isActive = activeTab === tab.id
+          
+          // Get colors based on tab type
+          const getTabColors = () => {
+            if (!isActive) {
+              return 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+            }
+            
+            switch(tab.id) {
+              case 'verified':
+                return 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30'
+              case 'misleading':
+                return 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+              case 'fake':
+                return 'bg-rose-500 text-white shadow-lg shadow-rose-500/30'
+              default: // trending
+                return 'bg-primary text-white shadow-lg scale-105'
+            }
+          }
+          
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'flex items-center space-x-2 px-6 py-3 rounded-full font-medium transition-all whitespace-nowrap',
+                getTabColors()
+              )}
+            >
+              <tab.icon className="w-5 h-5" />
+              <span>{tab.label}</span>
+            </button>
+          )
+        })}
       </div>
 
       {/* News Grid */}
