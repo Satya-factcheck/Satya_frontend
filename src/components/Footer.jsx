@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Shield, Twitter, Facebook, Instagram, Mail } from 'lucide-react'
+import { Shield, Twitter, Facebook, Instagram, Mail, Check, Heart } from 'lucide-react'
 
 const Footer = () => {
   return (
@@ -31,10 +31,22 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">Media Literacy</h3>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-              <li>✓ Check multiple sources</li>
-              <li>✓ Verify before sharing</li>
-              <li>✓ Look for credible citations</li>
-              <li>✓ Beware of emotional headlines</li>
+              <li className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <span>Check multiple sources</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <span>Verify before sharing</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <span>Look for credible citations</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <span>Beware of emotional headlines</span>
+              </li>
             </ul>
           </div>
 
@@ -59,7 +71,11 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 text-center text-sm text-gray-600 dark:text-gray-400">
-          © {new Date().getFullYear()} Satya. All rights reserved. Made with ❤️ for India.
+          <span className="inline-flex items-center gap-1">
+            © {new Date().getFullYear()} Satya. All rights reserved. Made with 
+            <Heart className="w-4 h-4 text-red-500 fill-red-500 inline" />
+            for India.
+          </span>
         </div>
       </div>
     </footer>

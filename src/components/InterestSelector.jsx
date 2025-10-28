@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import { cn } from '../utils/cn'
+import { Check } from 'lucide-react'
 
 // Import PNG icons
 import politicsIcon from '../assets/politics.png'
@@ -121,9 +122,8 @@ const InterestSelector = ({ selectedInterests = [], onSelectionChange, minSelect
                     initial={{ scale: 0, rotate: -180 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                    className="text-green-600 dark:text-green-400 text-lg"
                   >
-                    ✓
+                    <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
                   </motion.span>
                 )}
               </motion.div>
@@ -165,7 +165,7 @@ const InterestSelector = ({ selectedInterests = [], onSelectionChange, minSelect
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="text-xs text-green-600 dark:text-green-400 font-medium"
+                className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1"
               >
                 Ready to continue! 
               </motion.p>
@@ -230,7 +230,7 @@ const InterestSelector = ({ selectedInterests = [], onSelectionChange, minSelect
                     transition={{ type: "spring", stiffness: 500, damping: 25 }}
                     className="absolute top-3 right-3 w-6 h-6 bg-white dark:bg-white rounded-full flex items-center justify-center shadow-md"
                   >
-                    <span className="text-gray-900 dark:text-blue-600 text-sm font-bold">✓</span>
+                    <Check className="w-4 h-4 text-gray-900 dark:text-blue-600 stroke-[3]" />
                   </motion.div>
                 )}
               </AnimatePresence>
