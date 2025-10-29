@@ -2,43 +2,101 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Send, Link as LinkIcon, Loader2, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react'
 import CredibilityBadge from '../components/CredibilityBadge'
+import BiasMeter from '../components/BiasMeter'
+import { verifyArticle } from '../services/userService'
 
 const VerifyPage = () => {
   const [input, setInput] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
   const [result, setResult] = useState(null)
+  const [error, setError] = useState(null)
 
   const handleVerify = async (e) => {
     e.preventDefault()
     if (!input.trim()) return
 
     setIsVerifying(true)
+    setError(null)
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Determine if input is URL or plain text
+      const isUrl = input.trim().startsWith('http://') || input.trim().startsWith('https://')
+      
+      const requestData = isUrl 
+        ? { url: input.trim() }
+        : { article: input.trim() }
+      
+      // Call backend API
+      const response = await verifyArticle(requestData)
+      
+      // Map backend response to result format
       setResult({
-        verdict: 'Misleading',
-        confidence: 78,
-        summary: 'This claim contains partially accurate information but presents it in a misleading context.',
-        explanation: 'While the core facts mentioned are based on real data, the interpretation and presentation significantly distort the original context. The claim cherry-picks specific statistics while ignoring contradictory evidence.',
-        sources: [
-          { name: 'Government Official Report', url: '#', credibility: 95 },
-          { name: 'Independent Fact-Check Organization', url: '#', credibility: 90 },
-          { name: 'Academic Research Paper', url: '#', credibility: 88 }
-        ],
-        relatedArticles: [
-          'Understanding the Full Context Behind This Claim',
-          'Expert Analysis: What the Data Really Shows',
-          'Similar Claims Debunked in the Past'
-        ]
+        article: response,
+        verdict: response.verdict,
+        confidence: response.credibilityScore,
+        summary: `This ${isUrl ? 'article' : 'claim'} has been analyzed for credibility and bias.`,
+        explanation: generateExplanation(response),
+        sources: generateSources(response),
+        relatedClaims: response.claims || [],
       })
+    } catch (err) {
+      console.error('Verification error:', err)
+      setError(err.message || 'Failed to verify the claim. Please try again.')
+    } finally {
       setIsVerifying(false)
-    }, 2000)
+    }
+  }
+
+  const generateExplanation = (article) => {
+    const parts = []
+    
+    if (article.factCheckResults && article.factCheckResults.length > 0) {
+      parts.push(`Found ${article.factCheckResults.length} fact-check results from verified sources.`)
+    }
+    
+    if (article.mbfcPublisherMatch) {
+      parts.push(`Publisher "${article.source}" has a credibility rating of ${article.sourceReputation}/100.`)
+    }
+    
+    if (article.biasAnalysis && article.biasAnalysis.overall_bias) {
+      parts.push(`Bias analysis shows ${article.biasAnalysis.overall_bias} leaning.`)
+    }
+    
+    if (article.claims && article.claims.length > 0) {
+      parts.push(`Extracted ${article.claims.length} verifiable claims from the content.`)
+    }
+    
+    return parts.join(' ') || 'Analysis completed with available data.'
+  }
+
+  const generateSources = (article) => {
+    const sources = []
+    
+    if (article.mbfcPublisherMatch) {
+      sources.push({
+        name: `MBFC Analysis - ${article.source}`,
+        url: article.mbfcPublisherMatch.url || '#',
+        credibility: article.sourceReputation,
+      })
+    }
+    
+    if (article.factCheckResults) {
+      article.factCheckResults.slice(0, 3).forEach(result => {
+        sources.push({
+          name: result.publisher?.site || 'Fact-Check Source',
+          url: result.url || '#',
+          credibility: 85,
+        })
+      })
+    }
+    
+    return sources
   }
 
   const handleReset = () => {
     setResult(null)
     setInput('')
+    setError(null)
   }
 
   return (
@@ -54,6 +112,20 @@ const VerifyPage = () => {
           <p className="text-lg text-gray-600 dark:text-gray-400">
             Paste a news link, WhatsApp message, or any claim to check its credibility
           </p>
+        </motion.div>
+      )}
+
+      {/* Error Banner */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl"
+        >
+          <div className="flex items-center gap-2 text-red-800 dark:text-red-200">
+            <AlertTriangle className="w-5 h-5" />
+            <span>{error}</span>
+          </div>
         </motion.div>
       )}
 
@@ -120,7 +192,7 @@ const VerifyPage = () => {
               </div>
               <div className="text-right">
                 <div className="text-3xl font-bold text-primary mb-1">{result.confidence}%</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Confidence</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Credibility Score</div>
               </div>
             </div>
 
@@ -136,10 +208,58 @@ const VerifyPage = () => {
               <div>
                 <h3 className="font-semibold mb-2 flex items-center">
                   <AlertTriangle className="w-5 h-5 mr-2 text-amber-500" />
-                  Detailed Explanation
+                  Detailed Analysis
                 </h3>
                 <p className="text-gray-700 dark:text-gray-300">{result.explanation}</p>
               </div>
+
+              {/* Bias Meter */}
+              {result.article && (
+                <div>
+                  <h3 className="font-semibold mb-3">Bias Analysis</h3>
+                  <BiasMeter bias={result.article.bias} score={result.article.biasScore} />
+                </div>
+              )}
+
+              {/* Sources */}
+              {result.sources && result.sources.length > 0 && (
+                <div>
+                  <h3 className="font-semibold mb-3">Verified Sources</h3>
+                  <div className="space-y-2">
+                    {result.sources.map((source, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <a 
+                          href={source.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline flex-1"
+                        >
+                          {source.name}
+                        </a>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {source.credibility}% credible
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Related Claims */}
+              {result.relatedClaims && result.relatedClaims.length > 0 && (
+                <div>
+                  <h3 className="font-semibold mb-3">Extracted Claims</h3>
+                  <div className="space-y-2">
+                    {result.relatedClaims.slice(0, 5).map((claim, index) => (
+                      <div key={index} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {claim.claim || claim}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

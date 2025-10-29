@@ -1,26 +1,22 @@
 /**
  * API Configuration
- * Update these values when the backend team provides the endpoints
+ * Updated to match backend API routes (port 4000)
  */
 
-// Base URL for the API - update this when backend is deployed
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
+// Base URL for the API - points to backend service
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api'
 
-// API Endpoints
+// API Endpoints - Updated to match backend routes exactly
 export const API_ENDPOINTS = {
-  // User interests
-  GET_USER_INTERESTS: '/user/interests',
-  UPDATE_USER_INTERESTS: '/user/interests',
+  // User endpoints
+  GET_USER_ME: '/user/me',
   
-  // News articles
-  GET_NEWS_FEED: '/news/feed',
-  GET_TRENDING: '/news/trending',
-  GET_ARTICLE_BY_ID: '/news/:id',
-  VERIFY_ARTICLE: '/news/verify',
+  // News feed endpoints
+  GET_NEWS_FEED: '/feed',
+  GET_ARTICLE_BY_ID: '/feed/:id',
   
-  // User profile
-  GET_USER_PROFILE: '/user/profile',
-  UPDATE_USER_PROFILE: '/user/profile',
+  // Verification endpoints
+  VERIFY_ARTICLE: '/verify',
 }
 
 // HTTP Methods

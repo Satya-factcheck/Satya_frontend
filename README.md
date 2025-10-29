@@ -1,19 +1,19 @@
-# 🛡️ Satya - Indian Misinformation Detection Platform
+# 🛡️ Satya - Indian Misinformation Detection Platform (Frontend)
 
-A modern, responsive React frontend for AI-powered news verification and credibility analysis, designed specifically for the Indian context.
+A modern, responsive React frontend for AI-powered news verification and credibility analysis, integrated with the Satya backend API and article processing pipeline.
 
 ## ✨ Features
 
-- **Real-time News Verification**: AI-powered fact-checking and credibility scoring
-- **Personalized News Feed**: Interest-based content recommendation
-- **Smart Search**: Autocomplete with trending searches and user interests
-- **Pagination**: Load more articles with infinite scroll capability
-- **Bias Detection**: Visual bias meter showing 0-100% bias scale
-- **Source Reputation**: Color-coded reputation scoring (Excellent/Good/Fair/Low)
-- **Verdict System**: Articles tagged as Verified (green), Misleading (yellow), or Fake (red)
+- **Real-time News Verification**: AI-powered fact-checking using Gemini, Google Fact Check, and HuggingFace APIs
+- **Personalized News Feed**: Clerk-authenticated feed with pagination and filtering (verified/misleading/fake)
+- **Smart Search**: Search across article headlines, content, and publishers
+- **Instant Verification**: Submit URLs or text claims for comprehensive analysis
+- **Bias Detection**: Visual bias meter with HuggingFace-powered analysis
+- **Source Reputation**: MBFC-based publisher credibility scoring (0-100)
+- **Verdict System**: Articles classified as Verified (green), Misleading (yellow), or Fake (red)
 - **Interactive UI**: Smooth animations, dark mode, and responsive design
-- **User Onboarding**: Interest selection for personalized experience
-- **Instant Verification**: Submit any claim or URL for immediate analysis
+- **User Authentication**: Clerk-based auth with protected routes
+- **Article Details**: Full article view with fact-check results and extracted claims
 
 ## 🚀 Tech Stack
 
@@ -21,24 +21,26 @@ A modern, responsive React frontend for AI-powered news verification and credibi
 - **Vite** - Lightning-fast build tool and dev server
 - **Tailwind CSS** - Utility-first CSS framework
 - **Framer Motion** - Smooth animations and transitions
-- **React Router v6** - Client-side routing with search params
+- **React Router v6** - Client-side routing with protected routes
 - **Clerk** - Authentication & user management
 - **Lucide React** - Beautiful, consistent icon library
 - **Context API** - State management (UserContext, ThemeContext)
+- **Axios/Fetch** - HTTP client for backend API integration
 
 ## 📦 Installation
 
 ```bash
-# Clone the repository
+# Navigate to frontend directory
 cd Satya_frontend
 
 # Install dependencies
 npm install
 
-# Set up environment variables (see Authentication Setup below)
+# Set up environment variables
 cp .env.example .env
+# Edit .env with your Clerk keys and backend URL
 
-# Start development server
+# Start development server (runs on http://localhost:5173)
 npm run dev
 
 # Build for production
@@ -46,6 +48,24 @@ npm run build
 
 # Preview production build
 npm run preview
+```
+
+## 🔧 Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+# Backend API URL (update with your deployed backend)
+VITE_API_BASE_URL=http://localhost:4000/api
+
+# Clerk Authentication Keys (get from https://dashboard.clerk.com)
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxxxx
+```
+
+**Production values:**
+```env
+VITE_API_BASE_URL=https://satya-backend.up.railway.app/api
+VITE_CLERK_PUBLISHABLE_KEY=pk_live_xxxxx
 ```
 
 ## 🔐 Authentication Setup

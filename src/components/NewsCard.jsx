@@ -14,11 +14,15 @@ const NewsCard = ({ article, index }) => {
     author,
     publishedAt,
     imageUrl,
-    sourceReputationScore = 75, // Default value, will come from backend
+    sourceReputation = 50, // From MBFC data, default 50
     verdict,
     bias,
-    biasScore
+    biasScore,
+    credibilityScore = 50, // Backend factual score (0-100)
   } = article
+
+  // Use sourceReputation for the display (from MBFC)
+  const sourceReputationScore = sourceReputation
 
   // Get reputation level and styling
   const getReputationInfo = () => {

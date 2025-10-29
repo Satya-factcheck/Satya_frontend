@@ -1,75 +1,41 @@
-import React, { memo } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { memo, useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Calendar, User, ExternalLink, Share2, Facebook, Twitter, MessageCircle } from 'lucide-react'
+import { Calendar, User, ExternalLink, Share2, Facebook, Twitter, MessageCircle, AlertTriangle, Loader2 } from 'lucide-react'
 import CredibilityBadge from '../components/CredibilityBadge'
 import BiasMeter from '../components/BiasMeter'
+import { getArticleById } from '../services/userService'
 
 const ArticleDetailsPage = () => {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const [article, setArticle] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  // Mock article data
-  const article = {
-    id,
-    headline: 'Government Announces New Digital India Initiative for Rural Areas',
-    content: `The central government has launched a comprehensive digital literacy program aimed at connecting over 5000 villages to high-speed internet by end of 2024.
-
-    The initiative, unveiled today by the Ministry of Electronics and Information Technology, represents one of the largest digital infrastructure projects undertaken in rural India. The program will focus on providing affordable internet connectivity, digital skills training, and establishing digital service centers in remote areas.
-
-    Key highlights of the program include:
-    - Installation of fiber optic cables in 5000+ villages
-    - Free digital literacy training for over 1 million rural residents
-    - Subsidized smartphones and tablets for students
-    - Establishment of 2000 Common Service Centers
-
-    The government has allocated ₹15,000 crore for this initiative over the next two years. Industry experts have praised the move, noting that digital connectivity is crucial for economic development and access to essential services in rural areas.
-
-    However, some critics have raised concerns about the implementation timeline and the sustainability of such large-scale projects in regions with limited infrastructure.`,
-    source: 'The Hindu',
-    author: 'Rajesh Kumar',
-    publishedAt: 'January 15, 2024',
-    imageUrl: 'https://images.unsplash.com/photo-1523961131990-5ea7c61b2107?w=1200',
-    credibilityScore: 92,
-    verdict: 'True',
-    bias: 'Neutral',
-    biasScore: 0,
-    sourceReputation: 94,
-    factCheckSummary: 'This article accurately reports on a verified government announcement. All statistics and quotes have been cross-referenced with official government press releases and ministry statements.',
-    references: [
-      'Ministry of Electronics & IT Press Release - Jan 15, 2024',
-      'Official Digital India Portal Update',
-      'Parliamentary Budget Allocation Document'
-    ]
-  }
-
-  const relatedArticles = [
-    {
-      id: 2,
-      headline: 'How Digital Literacy is Transforming Rural India',
-      source: 'Indian Express',
-      imageUrl: 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400',
-      verdict: 'True',
-      credibilityScore: 88
-    },
-    {
-      id: 3,
-      headline: 'Critics Question Feasibility of Rural Internet Expansion',
-      source: 'The Wire',
-      imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400',
-      verdict: 'True',
-      credibilityScore: 85
-    },
-    {
-      id: 4,
-      headline: 'Previous Digital India Projects: Success and Challenges',
-      source: 'NDTV',
-      imageUrl: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400',
-      verdict: 'True',
-      credibilityScore: 90
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        setIsLoading(true)
+        setError(null)
+        const data = await getArticleById(id)
+        setArticle(data)
+      } catch (err) {
+        console.error('Error fetching article:', err)
+        setError(err.message || 'Failed to load article')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  ]
+
+    if (id) {
+      fetchArticle()
+    }
+  }, [id])
 
   const handleShare = (platform) => {
+    if (!article) return
+    
     const url = window.location.href
     const text = article.headline
     
@@ -80,6 +46,43 @@ const ArticleDetailsPage = () => {
     }
     
     window.open(urls[platform], '_blank', 'width=600,height=400')
+  }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-gray-600 dark:text-gray-400">Loading article...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error || !article) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center"
+        >
+          <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-amber-500" />
+          <h2 className="text-2xl font-bold mb-2">Article Not Found</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            {error || 'The article you are looking for does not exist or has been removed.'}
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            className="px-6 py-3 bg-primary text-white rounded-xl hover:bg-blue-700 transition-colors"
+          >
+            Back to Home
+          </button>
+        </motion.div>
+      </div>
+    )
   }
 
   return (
@@ -185,48 +188,63 @@ const ArticleDetailsPage = () => {
       </motion.article>
 
       {/* Fact-Check Summary */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8"
-      >
-        <h2 className="text-2xl font-bold mb-4">Fact-Check Analysis</h2>
-        <p className="text-gray-700 dark:text-gray-300 mb-6">{article.factCheckSummary}</p>
-        
-        <h3 className="font-semibold mb-3">Verified References:</h3>
-        <ul className="space-y-2">
-          {article.references.map((ref, idx) => (
-            <li key={idx} className="flex items-start space-x-2">
-              <ExternalLink className="w-4 h-4 mt-1 text-primary flex-shrink-0" />
-              <span className="text-gray-700 dark:text-gray-300">{ref}</span>
-            </li>
-          ))}
-        </ul>
-      </motion.div>
+      {(article.factCheckResults || article.claims) && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8"
+        >
+          <h2 className="text-2xl font-bold mb-4">Fact-Check Analysis</h2>
+          
+          {article.claims && article.claims.length > 0 && (
+            <>
+              <h3 className="font-semibold mb-3">Extracted Claims:</h3>
+              <ul className="space-y-2 mb-6">
+                {article.claims.slice(0, 5).map((claim, idx) => (
+                  <li key={idx} className="flex items-start space-x-2">
+                    <ExternalLink className="w-4 h-4 mt-1 text-primary flex-shrink-0" />
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {claim.claim || claim}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          
+          {article.factCheckResults && article.factCheckResults.length > 0 && (
+            <>
+              <h3 className="font-semibold mb-3">Fact-Check References:</h3>
+              <ul className="space-y-2">
+                {article.factCheckResults.slice(0, 5).map((result, idx) => (
+                  <li key={idx} className="flex items-start space-x-2">
+                    <ExternalLink className="w-4 h-4 mt-1 text-primary flex-shrink-0" />
+                    <a 
+                      href={result.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      {result.title || result.publisher?.site || 'Fact-check source'}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
 
-      {/* Related Articles */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <h2 className="text-2xl font-bold mb-6">Related Articles & Different Perspectives</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {relatedArticles.map((related) => (
-            <div key={related.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-              <img src={related.imageUrl} alt={related.headline} className="w-full h-40 object-cover" />
-              <div className="p-4">
-                <div className="mb-2">
-                  <CredibilityBadge verdict={related.verdict} size="sm" />
-                </div>
-                <h3 className="font-bold text-sm mb-2 line-clamp-2">{related.headline}</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{related.source}</p>
-              </div>
+          {article.mbfcPublisherMatch && (
+            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="font-semibold mb-2">Publisher Analysis (MBFC):</h3>
+              <p className="text-gray-700 dark:text-gray-300">
+                {article.source} has a credibility rating of {article.sourceReputation}/100 
+                with a {article.bias.toLowerCase()} bias according to Media Bias/Fact Check.
+              </p>
             </div>
-          ))}
-        </div>
-      </motion.div>
+          )}
+        </motion.div>
+      )}
     </div>
   )
 }

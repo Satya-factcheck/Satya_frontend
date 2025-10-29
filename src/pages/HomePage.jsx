@@ -76,15 +76,15 @@ const HomePage = () => {
       if (isSignedIn && hasCompletedOnboarding && interests.length > 0) {
         response = await getPersonalizedFeed({
           page: pageNum,
-          limit: 20,
+          limit: 6,
           filter: activeTab,
         })
       } else {
         // Fall back to trending news for non-authenticated or new users
-        response = await getTrendingNews({ page: pageNum, limit: 20 })
+        response = await getTrendingNews({ page: pageNum, limit: 6 })
       }
 
-      // Check if response has articles
+      // Process response
       if (response && response.articles) {
         if (append) {
           setArticles(prev => [...prev, ...response.articles])
@@ -94,22 +94,22 @@ const HomePage = () => {
         
         // Update pagination metadata
         setTotalArticles(response.total || response.articles.length)
-        setHasMore(response.hasMore !== undefined ? response.hasMore : response.articles.length === 20)
+        setHasMore(response.hasMore !== undefined ? response.hasMore : response.articles.length === 6)
       } else {
-        // Fallback to mock data if API fails or returns nothing
+        // No articles returned
         if (!append) {
-          setArticles(mockArticles)
-          setTotalArticles(mockArticles.length)
+          setArticles([])
+          setTotalArticles(0)
           setHasMore(false)
         }
       }
     } catch (error) {
       console.error('Error fetching news:', error)
       setError(error.message)
-      // Fallback to mock data on error
+      // Don't show any articles on error
       if (!append) {
-        setArticles(mockArticles)
-        setTotalArticles(mockArticles.length)
+        setArticles([])
+        setTotalArticles(0)
         setHasMore(false)
       }
     } finally {
@@ -133,88 +133,6 @@ const HomePage = () => {
     setHasMore(true)
     fetchNews(1, false)
   }
-
-  // Mock data
-  const mockArticles = [
-    {
-      id: 1,
-      headline: 'Government Announces New Digital India Initiative for Rural Areas',
-      summary: 'The central government has launched a comprehensive digital literacy program aimed at connecting over 5000 villages to high-speed internet by end of 2024.',
-      source: 'The Hindu',
-      author: 'Rajesh Kumar',
-      publishedAt: '2 hours ago',
-      imageUrl: 'https://images.unsplash.com/photo-1523961131990-5ea7c61b2107?w=800',
-      credibilityScore: 92,
-      verdict: 'True',
-      bias: 'Neutral',
-      biasScore: 0
-    },
-    {
-      id: 2,
-      headline: 'Misleading Claims About Vaccine Side Effects Circulate on Social Media',
-      summary: 'Health experts debunk viral WhatsApp message claiming 80% of vaccinated individuals experience severe side effects. Actual rate is less than 2%.',
-      source: 'Alt News',
-      author: 'Dr. Priya Sharma',
-      publishedAt: '5 hours ago',
-      imageUrl: 'https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?w=800',
-      credibilityScore: 65,
-      verdict: 'Misleading',
-      bias: 'Neutral',
-      biasScore: 10
-    },
-    {
-      id: 3,
-      headline: 'Indian Space Mission Successfully Launches Communication Satellite',
-      summary: 'ISRO celebrates another milestone with the successful deployment of advanced communication satellite that will improve connectivity in remote regions.',
-      source: 'Indian Express',
-      author: 'Kavita Menon',
-      publishedAt: '1 day ago',
-      imageUrl: 'https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=800',
-      credibilityScore: 95,
-      verdict: 'True',
-      bias: 'Neutral',
-      biasScore: -5
-    },
-    {
-      id: 4,
-      headline: 'Economic Growth Projections Revised Upward for Next Quarter',
-      summary: 'Leading economists predict GDP growth of 7.2% driven by strong manufacturing and services sector performance.',
-      source: 'Economic Times',
-      author: 'Amit Verma',
-      publishedAt: '3 hours ago',
-      imageUrl: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800',
-      credibilityScore: 88,
-      verdict: 'True',
-      bias: 'Right',
-      biasScore: 35
-    },
-    {
-      id: 5,
-      headline: 'Fake Video of Political Leader Goes Viral Ahead of Elections',
-      summary: 'Deepfake technology used to create misleading video. Fact-checkers confirm the video is digitally manipulated and not authentic.',
-      source: 'Boom Live',
-      author: 'Neha Singh',
-      publishedAt: '6 hours ago',
-      imageUrl: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=800',
-      credibilityScore: 45,
-      verdict: 'Fake',
-      bias: 'Left',
-      biasScore: -40
-    },
-    {
-      id: 6,
-      headline: 'New Environmental Policy Aims to Reduce Carbon Emissions by 40%',
-      summary: 'Ministry of Environment unveils ambitious plan to combat climate change with focus on renewable energy and sustainable practices.',
-      source: 'NDTV',
-      author: 'Sunita Reddy',
-      publishedAt: '4 hours ago',
-      imageUrl: 'https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=800',
-      credibilityScore: 90,
-      verdict: 'True',
-      bias: 'Neutral',
-      biasScore: 5
-    },
-  ]
 
   return (
     <OnboardingRedirect>
