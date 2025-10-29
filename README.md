@@ -2,7 +2,7 @@
 
 A modern, responsive React frontend for AI-powered news verification and credibility analysis, integrated with the Satya backend API and article processing pipeline.
 
-## ✨ Features
+## ✨ Feature
 
 - **Real-time News Verification**: AI-powered fact-checking using Gemini, Google Fact Check, and HuggingFace APIs
 - **Personalized News Feed**: Clerk-authenticated feed with pagination and filtering (verified/misleading/fake)
