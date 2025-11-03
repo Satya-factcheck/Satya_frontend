@@ -1,19 +1,27 @@
-import { SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react'
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * ProtectedRoute - A wrapper component that requires authentication
  * @param {React.ReactNode} children - The content to protect
  */
 const ProtectedRoute = ({ children }) => {
-  return (
-    <>
-      <SignedIn>{children}</SignedIn>
-      <SignedOut>
-        <RedirectToSignIn />
-      </SignedOut>
-    </>
-  )
-}
+  const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
-export default ProtectedRoute
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
 
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
+export default ProtectedRoute;

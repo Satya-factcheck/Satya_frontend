@@ -6,7 +6,7 @@ import LoadingSkeleton from '../components/LoadingSkeleton'
 import OnboardingRedirect from '../components/OnboardingRedirect'
 import { useUserPreferences } from '../context/UserContext'
 import { getPersonalizedFeed, getTrendingNews } from '../services/userService'
-import { useUser } from '@clerk/clerk-react'
+import { useAuth } from '../context/AuthContext'
 import { cn } from '../utils/cn'
 import { useSearchParams } from 'react-router-dom'
 
@@ -22,7 +22,7 @@ const HomePage = () => {
   const [hasMore, setHasMore] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [totalArticles, setTotalArticles] = useState(0)
-  const { isSignedIn } = useUser()
+  const { isAuthenticated } = useAuth()
   const { interests, hasCompletedOnboarding } = useUserPreferences()
 
   const tabs = [
@@ -37,7 +37,7 @@ const HomePage = () => {
     setPage(1) // Reset to page 1 when tab or interests change
     setArticles([]) // Clear existing articles
     fetchNews(1, false) // Fetch first page
-  }, [activeTab, interests, isSignedIn, hasCompletedOnboarding])
+  }, [activeTab, interests, isAuthenticated, hasCompletedOnboarding])
 
   // Filter articles based on search query
   useEffect(() => {
@@ -72,8 +72,8 @@ const HomePage = () => {
     try {
       let response
       
-      // Use personalized feed if user is signed in and has interests
-      if (isSignedIn && hasCompletedOnboarding && interests.length > 0) {
+      // Use personalized feed if user is authenticated and has interests
+      if (isAuthenticated && hasCompletedOnboarding && interests.length > 0) {
         response = await getPersonalizedFeed({
           page: pageNum,
           limit: 6,
@@ -147,7 +147,7 @@ const HomePage = () => {
         <p className="text-gray-600 dark:text-gray-400">
           {searchQuery 
             ? `Search results for "${searchQuery}"`
-            : isSignedIn && hasCompletedOnboarding && interests.length > 0
+            : isAuthenticated && hasCompletedOnboarding && interests.length > 0
               ? `Personalized news based on your ${interests.length} interests`
               : 'AI-powered credibility analysis for Indian news and social media claims'
           }

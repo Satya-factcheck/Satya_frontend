@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useUser } from '@clerk/clerk-react'
+import { useAuth } from '../context/AuthContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import InterestSelector from '../components/InterestSelector'
 import { useUserPreferences } from '../context/UserContext'
@@ -9,7 +9,7 @@ import { AlertCircle, Hand } from 'lucide-react'
 
 const SelectInterestsPage = () => {
   const navigate = useNavigate()
-  const { user } = useUser()
+  const { user } = useAuth()
   const { interests, setInterests, hasCompletedOnboarding, setHasCompletedOnboarding } = useUserPreferences()
   const [selectedInterests, setSelectedInterests] = useState(interests || [])
   const [isSubmitting, setIsSubmitting] = useState(false)

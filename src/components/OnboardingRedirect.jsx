@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useUser } from '@clerk/clerk-react'
+import { useAuth } from '../context/AuthContext'
 import { useUserPreferences } from '../context/UserContext'
 
 /**
@@ -10,18 +10,18 @@ import { useUserPreferences } from '../context/UserContext'
 const OnboardingRedirect = ({ children }) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { isSignedIn, isLoaded } = useUser()
+  const { isAuthenticated, loading } = useAuth()
   const { hasCompletedOnboarding } = useUserPreferences()
 
   useEffect(() => {
-    // Wait for Clerk to load
-    if (!isLoaded) return
+    // Wait for auth to load
+    if (loading) return
 
-    // Only redirect if user is signed in, hasn't completed onboarding, and not already on the onboarding page
-    if (isSignedIn && !hasCompletedOnboarding && location.pathname !== '/select-interests') {
+    // Only redirect if user is authenticated, hasn't completed onboarding, and not already on the onboarding page
+    if (isAuthenticated && !hasCompletedOnboarding && location.pathname !== '/select-interests') {
       navigate('/select-interests')
     }
-  }, [isSignedIn, isLoaded, hasCompletedOnboarding, location.pathname, navigate])
+  }, [isAuthenticated, loading, hasCompletedOnboarding, location.pathname, navigate])
 
   // Show children (the actual page content)
   return <>{children}</>

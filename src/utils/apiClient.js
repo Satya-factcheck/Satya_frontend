@@ -15,16 +15,12 @@ class ApiError extends Error {
 }
 
 /**
- * Get auth token from Clerk
- * @returns {Promise<string|null>}
+ * Get auth token from localStorage
+ * @returns {string|null}
  */
-const getAuthToken = async () => {
+const getAuthToken = () => {
   try {
-    // Get Clerk session token
-    if (window.Clerk?.session) {
-      return await window.Clerk.session.getToken()
-    }
-    return null
+    return localStorage.getItem('token')
   } catch (error) {
     console.error('Error getting auth token:', error)
     return null
@@ -56,7 +52,7 @@ export const apiRequest = async (endpoint, options = {}) => {
 
     // Add auth token if required
     if (requiresAuth) {
-      const token = await getAuthToken()
+      const token = getAuthToken()
       if (token) {
         requestHeaders['Authorization'] = `Bearer ${token}`
       }

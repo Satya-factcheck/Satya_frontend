@@ -1,8 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { Search, Menu, Moon, Sun, LogIn, TrendingUp, Clock, Heart } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
+import { useAuth } from '../context/AuthContext'
 import { useState, useEffect, useRef } from 'react'
-import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react'
 import UserButton from './UserButton'
 import { cn } from '../utils/cn'
 import { useUserPreferences } from '../context/UserContext'
@@ -10,6 +10,7 @@ import logo from '../assets/logo.svg'
 
 const Navbar = ({ onMenuClick }) => {
   const { theme, toggleTheme } = useTheme()
+  const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const { interests } = useUserPreferences()
   const [searchQuery, setSearchQuery] = useState('')
@@ -204,20 +205,19 @@ const Navbar = ({ onMenuClick }) => {
             </label>
 
             {/* Auth Controls */}
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="hidden sm:flex items-center space-x-2 px-4 py-2 text-primary border border-primary rounded-full hover:bg-primary hover:text-white transition-colors font-medium">
-                  <LogIn className="w-5 h-5" />
-                  <span>Sign In</span>
-                </button>
-              </SignInButton>
-            </SignedOut>
-
-            <SignedIn>
+            {!isAuthenticated ? (
+              <Link
+                to="/login"
+                className="hidden sm:flex items-center space-x-2 px-4 py-2 text-primary border border-primary rounded-full hover:bg-primary hover:text-white transition-colors font-medium"
+              >
+                <LogIn className="w-5 h-5" />
+                <span>Sign In</span>
+              </Link>
+            ) : (
               <div className="flex items-center space-x-2">
                 <UserButton />
               </div>
-            </SignedIn>
+            )}
 
             <Link
               to="/verify"
