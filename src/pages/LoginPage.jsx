@@ -42,7 +42,7 @@ const LoginPage = () => {
 
   const handleGoogleLogin = () => {
     // Redirect to backend Google OAuth endpoint
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+    const apiUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:4000';
     window.location.href = `${apiUrl}/api/auth/google`;
   };
 

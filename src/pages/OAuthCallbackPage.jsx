@@ -30,7 +30,8 @@ export default function OAuthCallbackPage() {
         }
 
         // Fetch user data to populate auth context
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/me`, {
+        const apiUrl = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:4000';
+        const response = await fetch(`${apiUrl}/api/auth/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
