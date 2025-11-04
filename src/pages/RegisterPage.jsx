@@ -43,12 +43,12 @@ const RegisterPage = () => {
 
     if (result.success) {
       setSuccess(result.message || 'Registration successful!');
-      // Redirect to login page with verification message
+      // Redirect to login page with verification message after 1 second
       setTimeout(() => {
         navigate('/login', { 
           state: { message: 'Registration successful! Please check your email to verify your account before logging in.' }
         });
-      }, 2000);
+      }, 1000);
     } else {
       setError(result.error);
     }

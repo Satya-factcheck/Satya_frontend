@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
+import { Mail, Lock, AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
+import { API_BASE_URL } from '../config/api';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -13,13 +14,18 @@ const LoginPage = () => {
     password: '',
   });
   const [error, setError] = useState('');
+  const [errorCode, setErrorCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resendingVerification, setResendingVerification] = useState(false);
+  const [verificationResent, setVerificationResent] = useState(false);
 
   const from = location.state?.from?.pathname || '/';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setErrorCode('');
+    setVerificationResent(false);
     setLoading(true);
 
     const result = await login(formData.email, formData.password);
@@ -28,9 +34,47 @@ const LoginPage = () => {
       navigate(from, { replace: true });
     } else {
       setError(result.error);
+      // Check if error response includes a code
+      if (result.code) {
+        setErrorCode(result.code);
+      }
     }
 
     setLoading(false);
+  };
+
+  const handleResendVerification = async () => {
+    if (!formData.email) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    setResendingVerification(true);
+    setVerificationResent(false);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/resend-verification-by-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: formData.email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setVerificationResent(true);
+        setError('');
+        setErrorCode('');
+      } else {
+        throw new Error(data.error || 'Failed to resend verification email');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setResendingVerification(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -62,10 +106,33 @@ const LoginPage = () => {
             </div>
           )}
 
+          {verificationResent && (
+            <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-start gap-3">
+              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-green-800 dark:text-green-300">
+                Verification email sent! Please check your inbox and spam folder.
+              </p>
+            </div>
+          )}
+
           {error && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+                  {errorCode === 'EMAIL_NOT_VERIFIED' && (
+                    <button
+                      onClick={handleResendVerification}
+                      disabled={resendingVerification}
+                      className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <RefreshCw className={`w-4 h-4 ${resendingVerification ? 'animate-spin' : ''}`} />
+                      {resendingVerification ? 'Sending...' : 'Resend Verification Email'}
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 

@@ -66,7 +66,9 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed');
+        const error = new Error(data.error || 'Login failed');
+        error.code = data.code; // Preserve error code if provided
+        throw error;
       }
 
       localStorage.setItem('token', data.token);
@@ -77,7 +79,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: data.user };
     } catch (error) {
       console.error('Login error:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: error.message, code: error.code };
     }
   };
 
